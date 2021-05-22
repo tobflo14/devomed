@@ -30,7 +30,7 @@
          </children>
       </HBox>
       <Text layoutX="773.0" layoutY="500.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ViewPage" />
-      <SubScene fx:id="subscene" height="870.0" layoutX="1359.0" layoutY="495.0" width="650.0" AnchorPane.bottomAnchor="80.0" AnchorPane.rightAnchor="80.0" AnchorPane.topAnchor="130.0">
+      <SubScene fx:id="subscene" height="700.0" layoutX="1359.0" layoutY="495.0" width="650.0" AnchorPane.rightAnchor="80.0" AnchorPane.topAnchor="130.0">
         <root>
           <Region />
         </root>

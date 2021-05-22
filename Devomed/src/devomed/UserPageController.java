@@ -38,6 +38,7 @@ public class UserPageController extends MainPageController{
 		
 		ViewPageController controller = loader.getController();
 		controller.initializeUser(currentUser);
+		scene.setOnKeyPressed(keyPressed -> controller.keyPressedHandler(keyPressed));
 		Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
 		window.setScene(scene);
 		window.show();
