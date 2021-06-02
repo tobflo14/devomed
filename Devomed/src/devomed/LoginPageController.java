@@ -41,14 +41,14 @@ public class LoginPageController {
 		window.show();
 	}
 	
-	public void changeSceneUserPage(ActionEvent event, String user) throws IOException {
+	public void changeScenePatientPage(ActionEvent event, String user) throws IOException {
 		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(getClass().getResource("userPage.fxml"));
+		loader.setLocation(getClass().getResource("patientPage.fxml"));
 		Parent parent = loader.load();
 		
 		Scene scene = new Scene(parent);
 		
-		UserPageController controller = loader.getController();
+		PatientPageController controller = loader.getController();
 		controller.initializeUser(user);
 		Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
 		window.setScene(scene);
@@ -60,7 +60,7 @@ public class LoginPageController {
 		String password = this.password.getText();
 		database = new SqliteDB();
 		if (password.equals(database.getPassword(username))) {
-			changeSceneUserPage(event, username);
+			changeScenePatientPage(event, username);
 		}
 		else {
 			label.setText("Login failed");

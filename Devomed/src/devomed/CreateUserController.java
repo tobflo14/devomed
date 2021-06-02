@@ -35,9 +35,7 @@ public class CreateUserController {
 		database = new SqliteDB();
 		therapists = database.getTherapists();
 		database.closeConnection();
-		for (int i = 0; i < therapists.size(); i++) {
-			therapistBox.getItems().add(therapists.get(i));
-		}
+		therapistBox.getItems().addAll(therapists);
 		
 		togglegroup = new ToggleGroup();
 		therapistCheck.setToggleGroup(togglegroup);
@@ -51,20 +49,19 @@ public class CreateUserController {
 			String password = this.password.getText();
 			String confirmPassword = this.confirmPassword.getText();
 			String name = this.name.getText();
+			if (password.equals(confirmPassword)) {
+				Therapist therapist = new Therapist(username, password, name);
+				therapist.saveToDatabase();
+				changeSceneStartPage(event);
+			}
 			
-			Therapist therapist = new Therapist(username, password, name);
-			therapist.saveToDatabase();
-			changeSceneStartPage(event);
 		}
 		if (patientCheck.isSelected()) {
-			String username = this.username.getText();
-			String password = this.password.getText();
-			String confirmPassword = this.confirmPassword.getText();
 			String name = this.name.getText();
 			String info = this.info.getText();
 			Therapist therapist = therapistBox.getValue();
 			
-			Patient patient = new Patient(username, password, name, info, therapist);
+			Patient patient = new Patient(name, info, therapist);
 			patient.saveToDatabase();
 			changeSceneStartPage(event);
 		}

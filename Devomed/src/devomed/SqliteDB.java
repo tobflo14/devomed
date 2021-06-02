@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class SqliteDB {
 	Connection c = null;
@@ -17,6 +18,7 @@ public class SqliteDB {
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
 		}
+		
 	}
 	
 	public void closeConnection() {
@@ -36,20 +38,21 @@ public class SqliteDB {
 		}
 	}
 	
-	public void executeQuery (String query) {
+	public ResultSet executeQuery (String query) {
 		try {
 			this.stmt = c.createStatement();
-			stmt.executeQuery(query);
+			ResultSet rs = stmt.executeQuery(query);
+			return rs;
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
+			return null;
 		}
 	}
 	
 	public ArrayList<Therapist> getTherapists() {
-		ArrayList<Therapist> therapists = new ArrayList();
+		ArrayList<Therapist> therapists = new ArrayList<Therapist>();
 		try {
-			this.stmt = c.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM therapists");
+			ResultSet rs = executeQuery("SELECT * FROM therapists");
 			while (rs.next()) {
 				int userID = rs.getInt("id");
 				String username = rs.getString("username");
@@ -66,9 +69,7 @@ public class SqliteDB {
 	public String getPassword (String username) {
 		String password = "";
 		try {
-			this.stmt = c.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT password FROM therapists WHERE username=\'"+username + "\'"
-					 						+" UNION SELECT password FROM patients WHERE username=\'"+username+"\'");
+			ResultSet rs = executeQuery("SELECT password FROM therapists WHERE username=\'"+username + "\'");
 			password = rs.getString("password");
 			
 		} catch (Exception e) {
@@ -80,24 +81,23 @@ public class SqliteDB {
 	public Therapist getTherapist(int userID) {
 		Therapist therapist = null;
 		try {
-			this.stmt = c.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM therapists WHERE id="+Integer.toString(userID));
+			ResultSet rs = executeQuery("SELECT * FROM therapists WHERE id="+Integer.toString(userID));
 			if (rs.next()) {
 				therapist = new Therapist(rs.getInt("id"), rs.getString("username"), rs.getString("password"),rs.getString("name"));
 			}
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
 		}
+		addPatients(therapist);
 		return therapist;
 	}
 	
 	public Therapist getTherapist(String username) {
 		Therapist therapist = null;
 		try {
-			this.stmt = c.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM therapists WHERE username=\'"+username + "\'");
+			ResultSet rs = executeQuery("SELECT * FROM therapists WHERE username=\'"+username + "\'");
 			if (rs.next()) {
-				therapist = new Therapist(rs.getInt("id"), rs.getString("username"), rs.getString("password"),rs.getString("name"));
+				therapist = getTherapist(rs.getInt("id"));
 			}
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
@@ -108,10 +108,9 @@ public class SqliteDB {
 	public Patient getPatient(int userID) {
 		Patient patient = null;
 		try {
-			this.stmt = c.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM patients WHERE id="+Integer.toString(userID));
+			ResultSet rs = executeQuery("SELECT * FROM patients WHERE id="+Integer.toString(userID));
 			if (rs.next()) {
-				patient = new Patient(rs.getInt("id"), rs.getString("username"), rs.getString("password"),rs.getString("name"), rs.getString("info"), this.getTherapist(rs.getInt("therapist")));
+				patient = new Patient(rs.getInt("id"), rs.getString("name"), rs.getString("info"), this.getTherapist(rs.getInt("therapist")));
 			}
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
@@ -122,10 +121,9 @@ public class SqliteDB {
 	public Patient getPatient(String username) {
 		Patient patient = null;
 		try {
-			this.stmt = c.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM patients WHERE username=\'"+username+"\'");
+			ResultSet rs = executeQuery("SELECT * FROM patients WHERE username=\'"+username+"\'");
 			if (rs.next()) {
-				patient = new Patient(rs.getInt("id"), rs.getString("username"), rs.getString("password"),rs.getString("name"), rs.getString("info"), this.getTherapist(rs.getInt("therapist")));
+				patient = new Patient(rs.getInt("id"), rs.getString("name"), rs.getString("info"), this.getTherapist(rs.getInt("therapist")));
 			}
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
@@ -154,6 +152,79 @@ public class SqliteDB {
 		}
 		else {
 			return null;
+		}
+	}
+	
+	public static int generateID() {
+	    int minimum = (int) Math.pow(10, 7); // minimum value with 2 digits is 10 (10^1)
+	    int maximum = (int) Math.pow(10, 8) - 1; // maximum value with 2 digits is 99 (10^2 - 1)
+	    Random random = new Random();
+	    return minimum + random.nextInt((maximum - minimum) + 1);
+	}
+	
+	public void addPatients(Therapist therapist) {
+		try {
+			ResultSet rs = executeQuery("SELECT * FROM patients WHERE therapist="+Integer.toString(therapist.getUserID()));
+			while (rs.next()) {
+				Patient patient = new Patient(rs.getInt("id"), rs.getString("name"), rs.getString("info"), therapist);
+				therapist.addPatient(patient);
+			}
+		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+		for (Patient patient : therapist.getPatients()) {
+			addExercises(patient);
+		}
+	}
+	
+	public void addExercises(Patient patient) {
+		try {
+			ResultSet rs = executeQuery("SELECT * FROM exercises WHERE patient="+Integer.toString(patient.getUserID()));
+			while (rs.next()) {
+				Exercise exercise = new Exercise(rs.getInt("id"), patient, rs.getString("name"), rs.getInt("count"));
+				patient.addExercise(exercise);
+			}
+		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+		for (Exercise exercise : patient.getExercises()) {
+			addPath(exercise);
+		}
+		addPrograms(patient);
+	}
+	
+	public void addPath(Exercise exercise) {
+		try {
+			ResultSet rs = executeQuery("SELECT * FROM paths WHERE exercise="+Integer.toString(exercise.getExerciseID()));
+			while (rs.next()) {
+				Path path = new Path(rs.getInt("id"), exercise);
+				path.setPoints(rs.getString("points"));
+				exercise.setPath(path);
+			}
+		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+	}
+	
+	public void addPrograms(Patient patient) {
+		try {
+			ResultSet rs = executeQuery("SELECT * FROM programs WHERE patient="+Integer.toString(patient.getUserID()));
+			while (rs.next()) {
+				Program program = new Program(rs.getInt("timesPerformed"), rs.getString("name"), patient, rs.getInt("id"));
+				ResultSet rs2 = executeQuery("SELECT * FROM programExercises WHERE program="+Integer.toString(rs.getInt("id")));
+				while (rs2.next()) {
+					ProgramExercise programExercise = new ProgramExercise(rs2.getInt("id"),
+																		  patient.getExercise(rs2.getInt("exercise")), 
+																		  rs2.getInt("repetitions"), 
+																		  rs2.getInt("sets"), 
+																		  rs2.getInt("resistance"));
+					program.addExercise(programExercise);
+				}
+				patient.addProgram(program);
+			}
+		} catch (Exception e) {
+			System.out.println("Error came from addProgram()");
+			System.out.println("Error: " + e.getMessage());
 		}
 	}
 }

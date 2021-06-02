@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.SubScene?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="devomed.RunExercisePageController">
+   <children>
+      <VBox layoutX="66.0" layoutY="86.0" prefHeight="214.0" prefWidth="84.0" style="-fx-background-color: #2A9AE0;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="1500.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Button mnemonicParsing="false" onAction="#changeSceneNewUser" prefHeight="60.0" prefWidth="420.0" text="New User">
+               <VBox.margin>
+                  <Insets top="120.0" />
+               </VBox.margin></Button>
+            <Button layoutX="500.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="420.0" text="Settings">
+            </Button>
+         </children></VBox>
+      <HBox layoutX="419.0" prefHeight="50.0" prefWidth="1500.0" AnchorPane.leftAnchor="420.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Button mnemonicParsing="false" onAction="#changeScenePatientPage" prefHeight="50.0" prefWidth="300.0" text="Patients" />
+            <Button mnemonicParsing="false" onAction="#changeSceneExercisePage" prefHeight="50.0" prefWidth="300.0" text="Exercises" />
+            <Button mnemonicParsing="false" onAction="#changeSceneProgramPage" prefHeight="50.0" prefWidth="300.0" text="Programs" />
+            <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="300.0" text="Run Exercise" />
+            <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="300.0" text="Dev" />
+         </children>
+      </HBox>
+      <SubScene fx:id="subscene" height="700.0" layoutX="1359.0" layoutY="495.0" width="650.0" AnchorPane.rightAnchor="80.0" AnchorPane.topAnchor="130.0">
+        <root>
+          <Region />
+        </root>
+      </SubScene>
+      <Label layoutX="464.0" layoutY="82.0" prefHeight="43.0" prefWidth="291.0" text="Label">
+         <font>
+            <Font size="24.0" />
+         </font></Label>
+      <Label layoutX="464.0" layoutY="176.0" prefHeight="43.0" prefWidth="291.0" text="Label">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#dddddd" height="43.0" layoutX="444.0" layoutY="807.0" stroke="BLACK" strokeType="INSIDE" width="700.0" />
+      <Slider fx:id="resistanceSlider" layoutX="464.0" layoutY="822.0" prefHeight="15.0" prefWidth="660.0" />
+      <Text layoutX="444.0" layoutY="787.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Select Resistance" wrappingWidth="191.19921875">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Text>
+      <Label fx:id="resistanceLabel" alignment="CENTER_RIGHT" layoutX="1014.0" layoutY="758.0" prefHeight="43.0" prefWidth="124.0">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

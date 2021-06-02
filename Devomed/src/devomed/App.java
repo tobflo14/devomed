@@ -9,14 +9,21 @@ public class App extends Application{
 	
 	public static Server server;
 	ServerReadRunnable readThreadRunnable;
+	Thread readThread;
+	Stage primaryStage;
 	
 	@Override
 	public void start(final Stage primaryStage) throws Exception {
+		this.primaryStage = primaryStage;
 		server = new Server();
-		server.start();
-		readThreadRunnable = new ServerReadRunnable();
-		Thread readThread = new Thread(readThreadRunnable);
-		readThread.start();
+		server.setRun(false);
+		if (server.run()) {
+			server.start();
+			readThreadRunnable = new ServerReadRunnable();
+			Thread readThread = new Thread(readThreadRunnable);
+			readThread.start();
+		}
+		
 		primaryStage.setTitle("Devomed");
 		primaryStage.setScene(new Scene(FXMLLoader.load(App.class.getResource("startPage.fxml"))));
 		primaryStage.show();
@@ -24,8 +31,11 @@ public class App extends Application{
 	
 	@Override
 	public void stop() throws Exception {
-		readThreadRunnable.requestStop();
-		server.stop();
+		if (server.run()) {
+			readThreadRunnable.requestStop();
+			server.stop();
+			readThread.join();
+		}
 		super.stop();
 	}
 	

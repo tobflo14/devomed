@@ -8,5 +8,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX"/>
 	<classpathentry kind="lib" path="/home/tobias/Downloads/sqlite-jdbc-3.34.0.jar"/>
+	<classpathentry kind="lib" path="/home/tobias/Downloads/JFX3DModelImporters_EA_2014-02-09/jimObjModelImporterJFX.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

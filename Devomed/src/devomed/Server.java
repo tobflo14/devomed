@@ -16,6 +16,7 @@ public class Server {
 	private Socket clientSocket;
 	private PrintWriter out;
 	private BufferedReader in;
+	private boolean runServer;
 	
 	
 	public void start() throws IOException {
@@ -65,7 +66,6 @@ public class Server {
 				}
 			}
 			robotData.setPose(pose);
-			System.out.println(robotData);
 		}
 	}
 	
@@ -88,5 +88,12 @@ public class Server {
     public RobotData getRobotData() {
     	return robotData;
     }
-
+    
+    public boolean run() {
+    	return runServer;
+    }
+    
+    public void setRun (boolean runServer) {
+    	this.runServer = runServer;
+    }
 }

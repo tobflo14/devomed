@@ -1,15 +1,11 @@
 package devomed;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 public class RobotData {
-	private double x;
-	private double y;
-	private double z;
-	private double rotx;
-	private double roty;
-	private double rotz;
+
 	private double[][] pose;
 	private Collection<PoseListener> poseListeners = new ArrayList<PoseListener>();
 	
@@ -37,69 +33,56 @@ public class RobotData {
 		poseChanged();
 	}
 	
-	public double getX() {
-		return x;
+	public double getXPosition() {
+		return pose[0][3];
 	}
 
-	public void setX(double x) {
-		this.x = x;
-		poseChanged();
+	public double getYPosition() {
+		return pose[1][3];
 	}
 
-	public double getY() {
-		return y;
+	public double getZPosition() {
+		return pose[2][3];
 	}
-
-	public void setY(double y) {
-		this.y = y;
-		poseChanged();
+	
+	public double getRoll() {
+		return Math.atan2(pose[3][2], pose[3][3]) * (180.0/Math.PI);
 	}
-
-	public double getZ() {
-		return z;
+	
+	public double getPitch() {
+		return Math.asin(pose[3][1]) * (180.0/Math.PI);
 	}
-
-	public void setZ(double z) {
-		this.z = z;
-		poseChanged();
+	
+	public double getYaw() {
+		return Math.atan2(pose[2][1], pose[1][1]) * (180.0/Math.PI);
 	}
-
-	public double getRotx() {
-		return rotx;
+	
+	public double[] getEulerAngles() {
+		double[] eulerAngles = new double[3];
+		eulerAngles[0] = getYaw();
+		eulerAngles[1] = getPitch();
+		eulerAngles[2] = getRoll();
+		return eulerAngles;
 	}
-
-	public void setRotx(double rotx) {
-		this.rotx = rotx;
-		poseChanged();
-	}
-
-	public double getRoty() {
-		return roty;
-	}
-
-	public void setRoty(double roty) {
-		this.roty = roty;
-		poseChanged();
-	}
-
-	public double getRotz() {
-		return rotz;
-	}
-
-	public void setRotz(double rotz) {
-		this.rotz = rotz;
-		poseChanged();
+	
+	public double[] getMinimalRepresentation() {
+		double[] minimalRepresentation = new double[6];
+		minimalRepresentation[0] = getXPosition();
+		minimalRepresentation[1] = getYPosition();
+		minimalRepresentation[2] = getZPosition();
+		double[] eulerAngles = getEulerAngles();
+		minimalRepresentation[3] = eulerAngles[0];
+		minimalRepresentation[4] = eulerAngles[1];
+		minimalRepresentation[5] = eulerAngles[2];
+		return minimalRepresentation;
 	}
 
 	@Override
 	public String toString() {
-		//String string = "";
-		//string += "x: " + Double.toString(x) + "\n";
-		//string += "y: " + Double.toString(y) + "\n";
-		//string += "z: " + Double.toString(z) + "\n";
-		//string += "rotx: " + Double.toString(rotx) + "\n";
-		//string += "roty: " + Double.toString(roty) + "\n";
-		//string += "rotz: " + Double.toString(rotz) + "\n";
-		return pose.toString();
+		String result = "";
+		for (double[] row : pose) {
+			result += Arrays.toString(row) + "\n";
+		}
+		return result;
 	}
 }

@@ -5,14 +5,20 @@ import java.util.ArrayList;
 public class Therapist extends User{
 	
 	private ArrayList<Patient> patients;
+	private String username;
+	private String password;
 	
 	public Therapist(String username, String password, String name) {
-		super(username, password, name);
+		super(name);
+		this.username = username;
+		this.password = password;
 		this.patients = new ArrayList<Patient>();
 	}
 	
 	public Therapist(int userID, String username, String password, String name) {
-		super(userID, username, password, name);
+		super(userID, name);
+		this.username = username;
+		this.password = password;
 		this.patients = new ArrayList<Patient>();
 	}
 	
@@ -37,19 +43,30 @@ public class Therapist extends User{
 				getUsername() + "\", \"" +
 				getPassword() + "\", \"" +
 				getName() + "\")";
-		database = new SqliteDB();
+		SqliteDB database = new SqliteDB();
 		database.executeUpdate(query);
 		database.closeConnection();
 		
 	}
 	
-	public static void main(String[] args) {
-		Therapist therapist = new Therapist("doktorproktor", "prompepulver", "Lege Legesen");
-		Patient patient = new Patient("tobflo14", "passord", "Tobias Fløtre", "Kjørte ikke ned i en grøft", therapist);
-		therapist.saveToDatabase();
-		
+	public String getUsername() {
+		return username;
 	}
-	
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	public void numberOfPatients() {
+		System.out.println(Integer.toString(patients.size()));
+	}
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
