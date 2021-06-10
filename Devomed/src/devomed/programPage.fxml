@@ -42,5 +42,7 @@
          </font></Text>
       <TableView fx:id="programExercisesTable" layoutX="464.0" layoutY="507.0" prefHeight="296.0" prefWidth="1290.0" />
       <Button fx:id="runProgram" layoutX="1454.0" layoutY="893.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="300.0" text="Run Program" />
+      <Button fx:id="newProgram" layoutX="824.0" layoutY="418.0" mnemonicParsing="false" onAction="#changeSceneNewProgramPage" prefHeight="20.0" prefWidth="120.0" text="New Program" />
+      <Button fx:id="editProgram" layoutX="681.0" layoutY="418.0" mnemonicParsing="false" onAction="#changeSceneEditProgramPage" prefHeight="20.0" prefWidth="120.0" text="Edit Program" />
    </children>
 </AnchorPane>

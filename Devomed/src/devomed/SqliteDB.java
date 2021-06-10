@@ -156,8 +156,8 @@ public class SqliteDB {
 	}
 	
 	public static int generateID() {
-	    int minimum = (int) Math.pow(10, 7); // minimum value with 2 digits is 10 (10^1)
-	    int maximum = (int) Math.pow(10, 8) - 1; // maximum value with 2 digits is 99 (10^2 - 1)
+	    int minimum = (int) Math.pow(10, 7);
+	    int maximum = (int) Math.pow(10, 8) - 1;
 	    Random random = new Random();
 	    return minimum + random.nextInt((maximum - minimum) + 1);
 	}

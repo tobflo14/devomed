@@ -45,12 +45,13 @@ public class CreateUserController {
 	
 	public void createUser(ActionEvent event) throws IOException{
 		if (therapistCheck.isSelected()) {
+			String salt = BCrypt.gensalt();
 			String username = this.username.getText();
-			String password = this.password.getText();
-			String confirmPassword = this.confirmPassword.getText();
+			String password = BCrypt.hashpw(this.password.getText(), salt);
+			String confirmPassword = BCrypt.hashpw(this.confirmPassword.getText(), salt);
 			String name = this.name.getText();
 			if (password.equals(confirmPassword)) {
-				Therapist therapist = new Therapist(username, password, name);
+				Therapist therapist = new Therapist(username, password, name, salt);
 				therapist.saveToDatabase();
 				changeSceneStartPage(event);
 			}

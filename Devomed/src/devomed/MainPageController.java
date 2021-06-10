@@ -1,6 +1,7 @@
 package devomed;
 
 import javafx.geometry.Point3D;
+import javafx.scene.Group;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.shape.Box;
@@ -96,6 +97,16 @@ public abstract class MainPageController implements PoseListener{
 		box.getTransforms().add(transform);
 	}
 	
+	protected void rotate (double degrees, Point3D axis, Group group) {
+		Transform transform = new Rotate(degrees, axis);
+        group.getTransforms().add(transform);
+	}
+	
+	protected void translate (double x, double y, double z, Group group) {
+		Transform transform = new Translate(x, y, z);
+		group.getTransforms().add(transform);
+	}
+	
 	@Override
 	public void poseChanged() {
 		setPose(App.server.getRobotData().getYPosition()*100,
@@ -115,6 +126,18 @@ public abstract class MainPageController implements PoseListener{
 	
 	public void setPose(double[][] points, Box box) {
 		setPose(points[0][3], points[1][3], points[2][3], getEulerAngles(points), box);
+	}
+	
+	public void setPose(double x, double y, double z, double[] eulerAngles, Group group) {
+		group.getTransforms().clear();
+		translate(x*100, y*100, z*100, group);
+		rotate(eulerAngles[0], Rotate.Z_AXIS, group);
+		rotate(eulerAngles[1], Rotate.Y_AXIS, group);
+		rotate(eulerAngles[2], Rotate.X_AXIS, group);
+	}
+	
+	public void setPose(double[][] points, Group group) {
+		setPose(points[0][3], points[1][3], points[2][3], getEulerAngles(points), group);
 	}
 	
 	protected double[] getEulerAngles(double[][] pose) {

@@ -13,7 +13,8 @@ import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
-import javafx.scene.control.Label;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;	
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -24,10 +25,15 @@ import javafx.scene.shape.Box;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 
-public class RunExercisePageController extends MainPageController{
+public class NewExercisePageController extends MainPageController{
 	@FXML private SubScene subscene;
 	@FXML private Slider resistanceSlider;
 	@FXML private Label resistanceLabel;
+	@FXML private Button startButton;
+	@FXML private Button stopButton;
+	@FXML private Button saveButton;
+	@FXML private Label verifyLabel;
+	@FXML private Label name;
 	
 	private PerspectiveCamera camera;
     private Group group;
@@ -60,8 +66,14 @@ public class RunExercisePageController extends MainPageController{
         subscene.setRoot(modelGroup);
         subscene.setFill(Color.SILVER);
         subscene.setCamera(camera);
-        
+        stopButton.setDisable(true);
+        saveButton.setDisable(true);
 	}
+    
+    @Override
+    public void userSetup() {
+    	name.setText(currentPatient.getName());
+    }
 	
 	public void changeSceneExercisePage(ActionEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader();
@@ -132,6 +144,28 @@ public class RunExercisePageController extends MainPageController{
 		window.show();
 	}
 	
+	public void startRecording () {
+		if (App.server.isRunning()) {
+			App.server.sendMessage("1:true");
+		}
+		startButton.setDisable(true);
+		stopButton.setDisable(false);
+		saveButton.setDisable(true);
+	}
+	
+	public void stopRecording () {
+		if (App.server.isRunning()) {
+			App.server.sendMessage("1:false");
+		}
+		startButton.setDisable(false);
+		stopButton.setDisable(true);
+		saveButton.setDisable(false);
+	}
+	
+	public void saveExercise () {
+		
+	}
+	
 	@Override
 	public void setPose(double x, double y, double z, double[] eulerAngles, Group group) {
 		group.getTransforms().clear();
@@ -141,13 +175,6 @@ public class RunExercisePageController extends MainPageController{
 		rotate(eulerAngles[2], Rotate.X_AXIS, group);
 		rotate(180, Rotate.Z_AXIS, group);
 		
-	}
-	
-	@Override
-	public void shutdown() {
-		if (App.server.isRunning()) {
-    		App.server.getRobotData().removePoseListener(this);
-    	}
 	}
 	
 	@Override

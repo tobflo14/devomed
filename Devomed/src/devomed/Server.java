@@ -12,26 +12,31 @@ import java.util.Collection;
 public class Server {
 	
 	private RobotData robotData;
-	private ServerSocket serverSocket;
-	private Socket clientSocket;
+	private ServerSocket serverReadSocket;
+	private ServerSocket serverWriteSocket;
+	private Socket readSocket;
+	private Socket writeSocket;
 	private PrintWriter out;
 	private BufferedReader in;
-	private boolean runServer;
+	private boolean run;
 	
 	
 	public void start() throws IOException {
 		robotData = new RobotData();
-        serverSocket = new ServerSocket(8080);
-        clientSocket = serverSocket.accept();
-        System.out.println(clientSocket.getInetAddress().toString());
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        serverReadSocket = new ServerSocket(8080);
+        serverWriteSocket = new ServerSocket(8081);
+        readSocket = serverReadSocket.accept();
+        writeSocket = serverWriteSocket.accept();
+        System.out.println(readSocket.getInetAddress().toString());
+        System.out.println(writeSocket.getInetAddress().toString());
+        out = new PrintWriter(writeSocket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(readSocket.getInputStream()));
     }
 	
 	public void sendMessage(String message) {
 		out.println(message);
 	}
-	
+		
 	public void receiveMessage() throws IOException {
 		String message = in.readLine();
 		if (message == null) {
@@ -47,11 +52,11 @@ public class Server {
 		case 2:
 			System.out.println(content);
 		}
-		receiveMessage();
+		//receiveMessage(); 
 	}
 	
 	public void dataMessageHandler(String message) {
-		message = message.replace(",", ".");
+		message = message.replace(",", ".");  //For some reason commas are used as decimals in the input, should be changed
 		String[] data = message.split(";");
 		if(data.length == 16) {
 			double[][] pose = new double[4][4];
@@ -66,14 +71,19 @@ public class Server {
 				}
 			}
 			robotData.setPose(pose);
+			//for (double[] rad : pose) {
+			//	  System.out.println(Double.toString(rad[0]) + " " + Double.toString(rad[1]) + " " + Double.toString(rad[2]) + " " + Double.toString(rad[3]));
+			//}
 		}
 	}
 	
 	public void stop() throws IOException {
         in.close();
         out.close();
-        clientSocket.close();
-        serverSocket.close();
+        readSocket.close();
+        writeSocket.close();
+        serverReadSocket.close();
+        serverWriteSocket.close();
         System.out.println("Server closed");
     }
 	
@@ -89,11 +99,12 @@ public class Server {
     	return robotData;
     }
     
-    public boolean run() {
-    	return runServer;
+    public void setRun(boolean run) {
+    	this.run = run;
     }
     
-    public void setRun (boolean runServer) {
-    	this.runServer = runServer;
+    public boolean isRunning() {
+    	return run;
     }
+    
 }

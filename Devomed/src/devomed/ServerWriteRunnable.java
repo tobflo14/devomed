@@ -2,7 +2,7 @@ package devomed;
 
 import java.io.IOException;
 
-public class ServerReadRunnable implements Runnable{
+public class ServerWriteRunnable implements Runnable{
 	
 	private boolean stopRequested;
 	
@@ -14,13 +14,15 @@ public class ServerReadRunnable implements Runnable{
 		return stopRequested;
 	}
 	
+	
+	
 	@Override
 	public void run(){
 		while (!isStopRequested()) {
 			try {
 				App.server.receiveMessage();
 			} catch (IOException e) {
-				e.printStackTrace();
+				
 			}
 			
 		}

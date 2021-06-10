@@ -7,12 +7,14 @@ public class Therapist extends User{
 	private ArrayList<Patient> patients;
 	private String username;
 	private String password;
+	private String salt;
 	
-	public Therapist(String username, String password, String name) {
+	public Therapist(String username, String password, String name, String salt) {
 		super(name);
 		this.username = username;
 		this.password = password;
 		this.patients = new ArrayList<Patient>();
+		this.salt = salt;
 	}
 	
 	public Therapist(int userID, String username, String password, String name) {
@@ -38,10 +40,11 @@ public class Therapist extends User{
 
 	@Override
 	public void saveToDatabase() {
-		String query = "INSERT INTO therapists (id, username, password, name) VALUES ("+
+		String query = "INSERT INTO therapists (id, username, password, salt, name) VALUES ("+
 				Integer.toString(getUserID()) + ", \"" + 
 				getUsername() + "\", \"" +
 				getPassword() + "\", \"" +
+				getSalt() + "\", \"" +
 				getName() + "\")";
 		SqliteDB database = new SqliteDB();
 		database.executeUpdate(query);
@@ -67,6 +70,15 @@ public class Therapist extends User{
 	public void numberOfPatients() {
 		System.out.println(Integer.toString(patients.size()));
 	}
+	
+	public String getSalt() {
+		return salt;
+	}
+	
+	public void setSalt(String salt) {
+		this.salt = salt;
+	}
+	
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub

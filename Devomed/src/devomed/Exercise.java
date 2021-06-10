@@ -101,9 +101,11 @@ public class Exercise {
 		SqliteDB database = new SqliteDB();
 		Patient patient = database.getPatient(59408535);
 		database.closeConnection();
-		Exercise exercise = new Exercise(patient, "RotasjonZmedTranslasjon");
+		Exercise exercise = new Exercise(patient, "Test1");
 		Path path = new Path(exercise);
+		Double theta = 115*Math.PI/180;
 		for (int i=0; i<360; i++) {
+			theta -=0.002424;
 			double[][] pointX = {{1,					  0,					   0,(double)i/360},
 					 			 {0,Math.cos(i*Math.PI/180),-Math.sin(i*Math.PI/180),(double)i/360},
 					 			 {0,Math.sin(i*Math.PI/180), Math.cos(i*Math.PI/180),(double)i/360},
@@ -118,8 +120,13 @@ public class Exercise {
 								 {Math.sin(i*Math.PI/180), Math.cos(i*Math.PI/180),0,(double)i/360},
 								 {						0,						 0,1,(double)i/360},
 								 {						0,						 0,0,			 1}};
-			path.addPoint(pointZ);
+			double[][] pointTest = {{Math.cos(i*Math.PI/180),-Math.sin(i*Math.PI/180),0,		  			   0.6},
+					 			 	{Math.sin(i*Math.PI/180), Math.cos(i*Math.PI/180),0,      0.33*Math.cos(theta)},
+					 			 	{					   0,						0,1,0.33*Math.sin(theta)-0.04},
+					 			 	{					   0,						0,0,						 1}};
+			path.addPoint(pointTest);
 		}
+		System.out.println();
 		exercise.setPath(path);
 		exercise.saveToDatabase();
 		SqliteDB database1 = new SqliteDB();

@@ -56,11 +56,11 @@ public class LoginPageController {
 	}
 	
 	public void login(ActionEvent event) throws IOException {
-		String username = this.username.getText();
-		String password = this.password.getText();
 		database = new SqliteDB();
-		if (password.equals(database.getPassword(username))) {
-			changeScenePatientPage(event, username);
+		String hashedPassword = database.getPassword(this.username.getText());
+		database.closeConnection();
+		if (BCrypt.checkpw(this.password.getText(), hashedPassword)) {
+			changeScenePatientPage(event, this.username.getText());
 		}
 		else {
 			label.setText("Login failed");

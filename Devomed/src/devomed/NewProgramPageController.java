@@ -10,20 +10,35 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
-public class ProgramPageController extends MainPageController{
-	@FXML TableView<Program> programTable;
-	@FXML TableView<ProgramExercise> programExercisesTable;
-	@FXML Label name;
+public class NewProgramPageController extends MainPageController{
+	@FXML TextField programName, reps, sets, resistance;
+	@FXML TableView<Exercise> exerciseTable;
+	@FXML TableView<ProgramExercise> programTable;
 	
-	public void initialize() {
-		TableColumn<Program, String> programColumn = new TableColumn<>("Program");
-	    programColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+	private ProgramExercise programSelection;
+	private Exercise exerciseSelection;
+	private boolean edit = false;
+	
+	@FXML public void initialize() {
+		
+       
+        TableColumn<Exercise, String> column1 = new TableColumn<>("Exercise");
+	    column1.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+	    TableColumn<Exercise, Integer> column2 = new TableColumn<>("Count");
+	    column2.setCellValueFactory(new PropertyValueFactory<>("timesPerformed"));
+
+	    exerciseTable.getColumns().add(column1);
+	    exerciseTable.getColumns().add(column2);
+	    exerciseTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+	    	exerciseSelection = newSelection;
+	    });
 	    
 	    TableColumn<ProgramExercise, String> exerciseColumn1 = new TableColumn<>("Exercise");
 	    exerciseColumn1.setCellValueFactory((p) -> new SimpleStringProperty(p.getValue().toString()));
@@ -34,36 +49,38 @@ public class ProgramPageController extends MainPageController{
 	    TableColumn<ProgramExercise, Integer> exerciseColumn4 = new TableColumn<>("Resistance");
 	    exerciseColumn4.setCellValueFactory(new PropertyValueFactory<>("resistance"));
 	    
-	    programTable.getColumns().add(programColumn);
-	    programExercisesTable.getColumns().add(exerciseColumn1);
-	    programExercisesTable.getColumns().add(exerciseColumn2);
-	    programExercisesTable.getColumns().add(exerciseColumn3);
-	    programExercisesTable.getColumns().add(exerciseColumn4);
+	    programTable.getColumns().add(exerciseColumn1);
+	    programTable.getColumns().add(exerciseColumn2);
+	    programTable.getColumns().add(exerciseColumn3);
+	    programTable.getColumns().add(exerciseColumn4);
 	    programTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-	    	programExercisesTable.getItems().clear();
-	    	ArrayList<ProgramExercise> exercises = newSelection.getExercises();
-	    	for (ProgramExercise exercise : exercises) {
-	    		programExercisesTable.getItems().add(exercise);
-	    	}
+	    	programSelection = newSelection;
 	    });
 	}
 	
 	@Override
 	public void userSetup() {
-		ArrayList<Program> programs = currentPatient.getPrograms();
-		for (Program program: programs) {
-			programTable.getItems().add(program);
+		ArrayList<Exercise> exercises = currentPatient.getExercises();
+		for (Exercise exercise : exercises) {
+			exerciseTable.getItems().add(exercise);
 		}
-		name.setText(currentPatient.getName());
 	}
 	
-	public void changeSceneNewUser(ActionEvent event) throws IOException {
-		Parent parent = FXMLLoader.load(getClass().getResource("createUser.fxml"));
-		Scene scene = new Scene(parent);
+	public void addExercise () {
+		if (exerciseSelection == null) {
+			return;
+		}
+		ProgramExercise exercise = new ProgramExercise();
+		exercise.setRepetitions(Integer.parseInt(reps.getText()));
+		exercise.setSets(Integer.parseInt(sets.getText()));
+		exercise.setResistance(Integer.parseInt(resistance.getText()));
+		exercise.setExercise(exerciseSelection);
+		programTable.getItems().add(exercise);
 		
-		Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
-		window.setScene(scene);
-		window.show();
+	}
+	
+	public void removeExercise () {
+		programTable.getItems().remove(programSelection);
 	}
 	
 	public void changeScenePatientPage(ActionEvent event) throws IOException {
@@ -94,6 +111,60 @@ public class ProgramPageController extends MainPageController{
 		window.show();
 	}
 	
+	public void changeSceneProgramPage(ActionEvent event) throws IOException {
+		FXMLLoader loader = new FXMLLoader();
+		loader.setLocation(getClass().getResource("programPage.fxml"));
+		Parent parent = loader.load();
+		
+		Scene scene = new Scene(parent);
+		
+		ProgramPageController controller = loader.getController();
+		controller.initializeUser(currentUser, currentPatient);
+		
+		Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+		window.setScene(scene);
+		window.setOnHidden(e -> {
+	    controller.shutdown();
+		});
+		window.show();
+	}
+	
+	public void changeSceneNewExercisePage(ActionEvent event) throws IOException {
+		FXMLLoader loader = new FXMLLoader();
+		loader.setLocation(getClass().getResource("newExercisePage.fxml"));
+		Parent parent = loader.load();
+		
+		Scene scene = new Scene(parent);
+		
+		NewExercisePageController controller = loader.getController();
+		controller.initializeUser(currentUser, currentPatient);
+		
+		Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+		window.setScene(scene);
+		window.setOnHidden(e -> {
+	    controller.shutdown();
+		});
+		window.show();
+	}
+	
+	public void changeSceneNewUser(ActionEvent event) throws IOException {
+		Parent parent = FXMLLoader.load(getClass().getResource("createUser.fxml"));
+		Scene scene = new Scene(parent);
+		
+		Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+		window.setScene(scene);
+		window.show();
+	}
+	
+	public void changeSceneLoginPage(ActionEvent event) throws IOException {
+		Parent parent = FXMLLoader.load(getClass().getResource("loginPage.fxml"));
+		Scene scene = new Scene(parent);
+		
+		Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+		window.setScene(scene);
+		window.show();
+	}
+	
 	public void changeSceneExercisePage(ActionEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(getClass().getResource("exercisePage.fxml"));
@@ -113,41 +184,20 @@ public class ProgramPageController extends MainPageController{
 		window.show();
 	}
 	
-	public void changeSceneNewProgramPage(ActionEvent event) throws IOException {
-		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(getClass().getResource("newProgramPage.fxml"));
-		Parent parent = loader.load();
-		
-		Scene scene = new Scene(parent);
-		
-		NewProgramPageController controller = loader.getController();
-		controller.initializeUser(currentUser, currentPatient);
-		
-		scene.setOnKeyPressed(keyPressed -> controller.keyPressedHandler(keyPressed));
-		Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
-		window.setScene(scene);
-		window.setOnHidden(e -> {
-	    controller.shutdown();
-		});
-		window.show();
+	public void save(ActionEvent event) throws IOException {
+		if (edit) {
+			
+		} else {
+			Program program = new Program();
+			for (ProgramExercise exercise : programTable.getItems()) {
+				program.addExercise(exercise);
+			}
+			program.setName(programName.getText());
+			program.setPatient(currentPatient);
+			program.saveToDatabase();
+			currentPatient.addProgram(program);
+			changeSceneProgramPage(event);
+		}
 	}
 	
-	public void changeSceneEditProgramPage(ActionEvent event) throws IOException {
-		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(getClass().getResource("newProgramPage.fxml"));
-		Parent parent = loader.load();
-		
-		Scene scene = new Scene(parent);
-		
-		NewProgramPageController controller = loader.getController();
-		controller.initializeUser(currentUser, currentPatient);
-		
-		scene.setOnKeyPressed(keyPressed -> controller.keyPressedHandler(keyPressed));
-		Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
-		window.setScene(scene);
-		window.setOnHidden(e -> {
-	    controller.shutdown();
-		});
-		window.show();
-	}
 }

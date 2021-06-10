@@ -3,6 +3,8 @@ package devomed;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
+
 import javafx.util.Duration;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -22,6 +24,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
+import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -47,19 +50,25 @@ public class ExercisePageController extends MainPageController implements Animat
 	
 	private PerspectiveCamera camera;
     private Group group;
+    private Group modelGroup;
     private Thread animateThread;
+    private ObjModelImporter modelImporter;
     AnimateExerciseRunnable animateRunnable;
 	
 	
 	@FXML public void initialize() {
-		if (App.server.run()) {
+		if (App.server.isRunning()) {
 			App.server.getRobotData().addPoseListener(this);
 		}
 		box = new Box(15, 25, 20);
 		group = new Group();
 		camera = new PerspectiveCamera();
         group.getChildren().add(box);
-        
+        modelImporter = new ObjModelImporter();
+        modelImporter.read("src/devomed/male_head.obj");
+        Node[] objMesh = (Node[]) modelImporter.getImport();
+        modelImporter.close();
+        modelGroup = new Group(objMesh);
         animationBox = new Box(15, 25, 20);
         animationBox.translateXProperty().set(0);
         animationBox.translateYProperty().set(0);
@@ -72,7 +81,7 @@ public class ExercisePageController extends MainPageController implements Animat
         camera.translateYProperty().set(-subscene.getHeight()/2-10);
         camera.translateZProperty().set(1100);
         
-        subscene.setRoot(group);
+        subscene.setRoot(modelGroup);
         subscene.setFill(Color.SILVER);
         subscene.setCamera(camera);
         
@@ -115,7 +124,45 @@ public class ExercisePageController extends MainPageController implements Animat
 		group.getChildren().clear();
 		group.getChildren().add(box);
 	}
-	
+	@Override
+	public void keyPressedHandler (KeyEvent event) {
+		if (event.getCode() == KeyCode.W) {
+	        rotateGroup(10, Rotate.X_AXIS, modelGroup);
+	    }
+		if (event.getCode() == KeyCode.S) {
+	        rotateGroup(-10, Rotate.X_AXIS, modelGroup);
+	    }
+		if (event.getCode() == KeyCode.A) {
+	        rotateGroup(10, Rotate.Y_AXIS, modelGroup);
+	    }
+		if (event.getCode() == KeyCode.D) {
+	        rotateGroup(-10, Rotate.Y_AXIS, modelGroup);
+	    }
+		if (event.getCode() == KeyCode.Q) {
+	        rotateGroup(10, Rotate.Z_AXIS, modelGroup);
+	    }
+		if (event.getCode() == KeyCode.E) {
+	        rotateGroup(-10, Rotate.Z_AXIS, modelGroup);
+	    }
+		if (event.getCode() == KeyCode.I) {
+	        translateGroup(10, 0, 0, modelGroup);
+	    }
+		if (event.getCode() == KeyCode.K) {
+			translateGroup(-10, 0, 0, modelGroup);
+	    }
+		if (event.getCode() == KeyCode.J) {
+			translateGroup(0, 10, 0, modelGroup);
+	    }
+		if (event.getCode() == KeyCode.L) {
+			translateGroup(0, -10, 0, modelGroup);
+	    }
+		if (event.getCode() == KeyCode.U) {
+			translateGroup(0, 0, 10, modelGroup);
+	    }
+		if (event.getCode() == KeyCode.O) {
+			translateGroup(0, 0, -10, modelGroup);
+	    }
+	}
 	
 	private void rotateCamera (double degrees, Point3D axis) {
 		Transform transform = new Rotate(degrees, axis);
@@ -125,6 +172,16 @@ public class ExercisePageController extends MainPageController implements Animat
 	private void translateCamera (double x, double y, double z) {
 		Transform transform = new Translate(x, y, z);
 		camera.getTransforms().add(transform);
+	}
+	
+	private void rotateGroup (double degrees, Point3D axis, Group group) {
+		Transform transform = new Rotate(degrees, axis);
+        group.getTransforms().add(transform);
+	}
+	
+	private void translateGroup (double x, double y, double z, Group group) {
+		Transform transform = new Translate(x, y, z);
+		group.getTransforms().add(transform);
 	}
 	
 	public void changeScenePatientPage(ActionEvent event) throws IOException {
@@ -176,6 +233,25 @@ public class ExercisePageController extends MainPageController implements Animat
 		window.show();
 	}
 	
+	public void changeSceneNewExercisePage(ActionEvent event) throws IOException {
+		shutdownAnimationThread();
+		FXMLLoader loader = new FXMLLoader();
+		loader.setLocation(getClass().getResource("newExercisePage.fxml"));
+		Parent parent = loader.load();
+		
+		Scene scene = new Scene(parent);
+		
+		NewExercisePageController controller = loader.getController();
+		controller.initializeUser(currentUser, currentPatient);
+		
+		Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+		window.setScene(scene);
+		window.setOnHidden(e -> {
+	    controller.shutdown();
+		});
+		window.show();
+	}
+	
 	public void changeSceneNewUser(ActionEvent event) throws IOException {
 		shutdownAnimationThread();
 		Parent parent = FXMLLoader.load(getClass().getResource("createUser.fxml"));
@@ -200,7 +276,7 @@ public class ExercisePageController extends MainPageController implements Animat
 	
 	@Override
 	public void animationPoseChanged(double[][] pose) {
-		setPose(pose, animationBox);
+		setPose(pose, modelGroup);
 	}
 	
 	public Affine createAffineTransform(double[][] rotationMatrix) {
